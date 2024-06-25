@@ -16,13 +16,14 @@ def get_response():
     """
     data = request.get_json()
     prompt = data.get('msg')
+    file_name = data.get('filename')
 
     if not prompt:
         return jsonify({'error': 'Mensagem vazia'}), 400
 
     bot_controller = BotMessageController()
     try:
-        response = bot_controller.get_response(prompt)
+        response = bot_controller.get_response(prompt, file_name)
         return jsonify({'response': response})
     except Exception as e:
         return jsonify({'error': str(e)}), 500

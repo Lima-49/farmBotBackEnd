@@ -13,7 +13,7 @@ class Config:
     @staticmethod
     def init_llm_model():
         return ChatOpenAI(
-            model="gpt-3.5-turbo",
+            model="gpt-4o",
             temperature=0.3,
             max_tokens=1000,
             verbose=True,
@@ -21,7 +21,7 @@ class Config:
     
     @staticmethod
     def init_csv_loader(file_path):
-        CSVLoader(file_path,
+        return CSVLoader(file_path,
                    csv_args={
                        'delimiter': ',',
                        'fieldnames': ['mes',

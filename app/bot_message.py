@@ -51,14 +51,14 @@ class BotMessageController:
         response = None
         
         if file_name == '':
-            prompt = ChatPromptTemplate.from_template(
+            prompt_template = ChatPromptTemplate.from_template(
                 """
                     Você é um assistente para um gerente de uma farmácia de manipulação, chamado FarmaBot, 
                     você será responsável por responder as perguntas do seu gerente 
                     da maneira mais clara e precisa possível.
                     
                     O seu trabalho é ler o arquivo csv passado para você e responder as perguntas do seu gerente.
-                    com base nos dados do arquivo csv.
+                    com base nos dados do arquivo csv, da uma maneira mais objetiva. Sem explicar os pormenores da explicação.
                     
                     
                     Question: {input}
@@ -66,7 +66,7 @@ class BotMessageController:
             )
 
             parser = StrOutputParser()
-            chain = prompt | self.llm | parser
+            chain = prompt_template | self.llm | parser
             response = chain.invoke({"input": f"{prompt}"})
         
         else:
@@ -75,15 +75,30 @@ class BotMessageController:
             loader = Config.init_csv_loader(file_path)
             data = loader.load()
             
+            prompt_template = ChatPromptTemplate.from_template(
+                """
+                    Você é um assistente para um gerente de uma farmácia de manipulação, chamado FarmaBot, 
+                    você será responsável por responder as perguntas do seu gerente 
+                    da maneira mais clara e precisa possível.
+                    
+                    O seu trabalho é ler o arquivo csv passado para você e responder as perguntas do seu gerente.
+                    com base nos dados do arquivo csv, da uma maneira mais objetiva. Sem explicar os pormenores da explicação.
+                    
+                    Context: {context}
+                    
+                    Question: {input}
+                """
+            )
+
             chain = create_stuff_documents_chain(
                 llm = self.llm,
-                prompt= prompt,
+                prompt= prompt_template,
                 output_parser= StrOutputParser()
             )
             
             response = chain.invoke({
-                "input": prompt,
-                "context": data  
+                "input": f"{prompt}",
+                "context": data
             })
 
 
